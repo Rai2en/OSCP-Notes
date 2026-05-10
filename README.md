@@ -408,7 +408,7 @@ sudo nmap -sU --top-ports 20 $IP -oN nmap-udp-top.txt --open -v
 	~/.ssh/id_dsa # DSA SSH key
 	~/.ssh/id_dsa.pub # DSA SSH public key
 	~/.ssh/id_rsa # RSA SSH key
-	~/.ssh/id_edcsa # ECDSA SSH key
+	~/.ssh/id_ecdsa # ECDSA SSH key
 	~/.ssh/id_rsa.pub # RSA SSH public key
 	~/.ssh/identity # SSH identity key
 	~/.ssh/identity.pub # SSH public key
