@@ -1,3 +1,5 @@
+![OSCP Field Notes — Practical workflows. Clear evidence.](assets/oscp-field-notes-cover.png)
+
 # OSCP Field Notes
 
 **Practical workflows, command references and reporting templates for OSCP preparation.**
