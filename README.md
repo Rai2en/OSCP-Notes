@@ -2329,8 +2329,6 @@ print(cmdline)
 
 # References
 
-Presentation inspiration: [0xsyr0/OSCP](https://github.com/0xsyr0/OSCP). Original source credits are retained below and alongside the relevant notes.
-
 [![](https://github.com/saisathvik1.png?size=50)](https://github.com/saisathvik1)
 [![](https://github.com/swisskyrepo.png?size=50)](https://github.com/swisskyrepo)
 ---
