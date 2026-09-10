@@ -9,6 +9,7 @@ Keep notes searchable, reproducible and attributed. Use [the technique template]
 - Label training-only tools and restricted features at the point of use.
 - Preserve existing attribution; do not copy unlicensed material or add a blanket license over third-party contributions without checking rights.
 - Keep scripts small, transparent and offline unless their networking behavior is explicitly documented.
+- Use Conventional Commits for commit messages and PR titles: `docs: clarify pivoting prerequisites`, `fix: handle an existing notebook`, or `feat: add a study helper`.
 
 Before submitting:
 
