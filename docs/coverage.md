@@ -40,6 +40,8 @@ The table is a repository assessment, not a claim that all techniques are valida
 
 ## Maintenance priorities
 
+The subsequent [command audit](command-audit.md) corrects identified CLI and chain prerequisites against current upstream references and adds a [CVE shortlist](cve-references.md). These changes are source-reviewed; offensive workflows remain untested in a target lab.
+
 1. Add synthetic worked examples for uncovered topics and record their validation status.
 2. Gradually split the original reference by topic while maintaining old anchors or redirect notes.
 3. Replace stale third-party snippets only after checking their behavior and attribution.
