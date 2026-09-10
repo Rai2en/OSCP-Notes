@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Private session material: use an external directory whenever possible.
+/sessions/
+/private/
+/evidence/

