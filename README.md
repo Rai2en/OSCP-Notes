@@ -1,4 +1,4 @@
-![OSCP Field Notes — Practical workflows. Clear evidence.](assets/oscp-field-notes-cover.png)
+![White dragon inside a copper hexagon on a dark background](assets/oscp-field-notes-cover.png)
 
 # OSCP Field Notes
 
