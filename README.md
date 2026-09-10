@@ -1,31 +1,44 @@
-# OSCP-Notes
+# OSCP Field Notes
 
-**Preparing as part of my OSCP Certificate.**
+**Practical workflows, command references and reporting templates for OSCP preparation.**
 
-## Study playbook
+[Start here](docs/start-here.md) · [Command reference](#general) · [Exam checklist](docs/exam.md) · [Contribute](CONTRIBUTING.md)
 
-Start with the [situation-based guide](docs/start-here.md), then use the command reference below during authorized practice. This repository combines historical notes with newer workflows; validation status and remaining gaps are recorded in the [coverage audit](docs/coverage.md).
+From your first scan to a reproducible report: find the next step, check its prerequisites and record what worked. Covers Linux, Windows, web applications, Active Directory and pivoting.
 
-| Prepare | Work through a target | Record and improve |
+## Find your next step
+
+| Get ready | Work the target | Capture the result |
 |---|---|---|
-| [Toolkit and VM checks](docs/toolkit.md) | [Enumeration methodology](docs/methodology.md) | [Machine notes](templates/machine.md) |
-| [Current exam checklist](docs/exam.md) | [Web and manual SQL](docs/web.md) | [Report template](templates/report.md) |
-| [Training plan](docs/training.md) | [Active Directory](docs/active-directory.md) | [Private credential inventory](templates/credentials.md) |
-| [Tool version inventory](templates/tool-inventory.md) | [Pivoting and port forwarding](docs/pivoting.md) | [Progress tracker](templates/progress.md) |
-| [Contribution guide](CONTRIBUTING.md) | [Privilege escalation](docs/privilege-escalation.md) | [Troubleshooting](docs/troubleshooting.md) |
+| [Toolkit](docs/toolkit.md) | [Enumeration](docs/methodology.md) | [Machine notes](templates/machine.md) |
+| [Training plan](docs/training.md) | [Web & SQL](docs/web.md) | [Report template](templates/report.md) |
+| [Exam checklist](docs/exam.md) | [Active Directory](docs/active-directory.md) | [Credential inventory](templates/credentials.md) |
+| [Tool inventory](templates/tool-inventory.md) | [Pivoting](docs/pivoting.md) | [Progress tracker](templates/progress.md) |
+| [Coverage & roadmap](docs/coverage.md) | [Privilege escalation](docs/privilege-escalation.md) | [Troubleshooting](docs/troubleshooting.md) |
 
-**Exam rules take priority over any command here.** Read the [official exam guide](https://help.offsec.com/hc/en-us/articles/360040165632-OSCP-Exam-Guide) before each attempt. Some course tools and historical examples, including SQLMap, are prohibited during the exam. Keep lab evidence and secrets in a separate private notebook:
+## Start a lab notebook
+
+Run from the repository root to create private notes and evidence folders outside the repo:
 
 ```bash
 python3 scripts/new_session.py ~/oscp-private/lab-01
 ```
 
-# General
-# OSCP Commands
+Offline, with no dependencies beyond Python 3. Existing destinations are never overwritten.
 
-> Quick commands and Mods to make Pentesting easy.
+> [!IMPORTANT]
+> Built for authorized practice. Follow the [official exam rules](https://help.offsec.com/hc/en-us/articles/360040165632-OSCP-Exam-Guide): some training tools, including SQLMap, are prohibited. Historical commands are retained; see [coverage and validation status](docs/coverage.md) before relying on them.
+
+Found a clearer approach or a stale command? [Contributions are welcome](CONTRIBUTING.md).
 
 ---
+
+<a id="general"></a>
+<a id="oscp-commands"></a>
+
+## Command reference
+
+[Setup](#quick-setup) · [Enumeration](#recon-and-enumeration) · [Web](#web-attacks) · [Windows](#windows-privilege-escalation) · [Linux](#linux-privilege-escalation) · [Active Directory](#active-directory-pentesting)
 
 ## Quick setup
 
@@ -2315,6 +2328,9 @@ print(cmdline)
 ```
 
 # References
+
+Presentation inspiration: [0xsyr0/OSCP](https://github.com/0xsyr0/OSCP). Original source credits are retained below and alongside the relevant notes.
+
 [![](https://github.com/saisathvik1.png?size=50)](https://github.com/saisathvik1)
 [![](https://github.com/swisskyrepo.png?size=50)](https://github.com/swisskyrepo)
 ---
