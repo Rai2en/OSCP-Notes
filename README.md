@@ -1,4 +1,4 @@
-![White dragon inside a copper hexagon on a dark background](assets/oscp-field-notes-cover.png)
+![Chrome dragon surrounded by orange light with OSCP+ in the lower-right corner](assets/oscp-field-notes-cover.png)
 
 # OSCP Field Notes
 
