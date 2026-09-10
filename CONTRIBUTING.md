@@ -1,0 +1,21 @@
+# Contributing
+
+Keep notes searchable, reproducible and attributed. Use [the technique template](templates/technique.md) for new material and update [coverage](docs/coverage.md).
+
+- Explain when a technique applies, where commands run and what output establishes success.
+- Use synthetic addresses/names; never commit private evidence, credentials or restricted exam material.
+- Link primary documentation and record review date and tool version when known.
+- Distinguish draft, source-reviewed and lab-tested content. Do not infer lab validation from a successful syntax check.
+- Label training-only tools and restricted features at the point of use.
+- Preserve existing attribution; do not copy unlicensed material or add a blanket license over third-party contributions without checking rights.
+- Keep scripts small, transparent and offline unless their networking behavior is explicitly documented.
+
+Before submitting:
+
+```bash
+python3 scripts/check_docs.py
+python3 -m unittest discover -s tests -v
+git diff --check
+```
+
+The documentation checker verifies local inline Markdown file paths. It does not certify external links, heading anchors, tool correctness or exam permission.
